@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+import time
 
 class DataLoad:
 
@@ -25,10 +26,12 @@ class DataLoad:
         df = pd.read_json(self.path, lines=True, chunksize=chunksize)
         to_return_df = pd.DataFrame()
         for chunk in df:
+            time_start = time.time()
             chunk.set_index('session', drop=True, inplace=True)
             flattened_df = self.to_dataframe(chunk)
             to_return_df = pd.concat([to_return_df, flattened_df], ignore_index=True)
-
+            time_end = time.time()
+            print('time cost:' + str(time_end-time_start))
         return to_return_df
 
 
