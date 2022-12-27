@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 import time
+from tqdm import tqdm
 
 class DataLoad:
 
@@ -33,8 +34,7 @@ class DataLoad:
             time_end = time.time()
             print('time cost:' + str(time_end-time_start))
         return to_return_df
-
-
+    
     def to_dataframe(self, data):
         session = []
         aid = []
@@ -69,20 +69,15 @@ class DataLoad:
         session = data.session.unique().tolist()
         train, test = train_test_split(session, train_size=train_size, random_state=random_seed)
         train_df = data.loc[data.session.isin(train)].copy()
-        test_df = data.loc[data.session.isin(test)].copy()
         test_res_df = data.loc[data.session.isin(test)].copy()
-
-        # truncate_ratio is the ratio of truncated events
         np.random.seed(random_seed)
-        truncate_ratio = np.random.rand(len(test))
         truncate_index = []
-        for i, s in enumerate(test):
-            index = test_df.loc[test_df.session == s].index.tolist()
-            truncate_number = np.floor(len(index)*truncate_ratio[i])
-            truncate_point = int(len(index) - truncate_number)
+        for i, s in enumerate(tqdm(test_res_df.groupby('session'))):
+            truncate_point = np.random.randint(1, len(s[1]))
+            index = s[1].index.tolist()
             truncate_index.extend(index[truncate_point:])
 
-        test_df.drop(truncate_index, inplace=True)
+        test_df = test_res_df.drop(truncate_index)
 
         return train_df, test_df, test_res_df
 
@@ -94,15 +89,16 @@ class DataLoad:
 
 
 if __name__ == '__main__':
-    # dl = DataLoad('D:\OTTO\Data\\train.jsonl')
-    #
-    # dl.sample_data(10)
-    #
-    # df = dl.to_dataframe()
-    # train, test, test_res = dl.data_split(df)
-    # print(train)
-    # print(test)
-    # print(test_res)
+    dl = DataLoad('D:\OTTO\Data\\train.jsonl')
+
+    dl.sample_data(10)
+
+    df = dl.to_dataframe(dl.sample)
+    print(df)
+    train, test, test_res = dl.data_split(df)
+    print(train)
+    print(test)
+    print(test_res)
     # print(df)
     # dl.random_sample(10)
     # tmp = pd.to_datetime(df['ts'],unit='ms')
@@ -118,8 +114,8 @@ if __name__ == '__main__':
     # df = dlt.to_dataframe()
     # print(df)
 
-    dl = DataLoad('D:\OTTO\Data\\train.jsonl')
-    dl.get_data_with_chunk(10000)
+    # dl = DataLoad('D:\OTTO\Data\\train.jsonl')
+    # dl.get_data_with_chunk(10000)
 
 
 #sample data

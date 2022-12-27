@@ -10,7 +10,7 @@ def args():
     parse = argparse.ArgumentParser(description=description)
     parse.add_argument('--chunksize', type=int, default=1e4)
     parse.add_argument('--train_path', type=str, default='~/otto/data/train.jsonl')
-    parse.add_argument('__flattendf_path', type=str, default='~/otto/data/flattenTrain.csv')
+    parse.add_argument('--flattendf_path', type=str, default='~/otto/data/flattenTrain.csv')
     parse.add_argument('--k_value', type=int, nargs='+', default=[1e4, 1e5, 1e6]) #--k_value 1e4 1e5 1e6
     parse.add_argument('--ts_duration', type=int, default=2)
     arg = parse.parse_args()
@@ -19,9 +19,12 @@ def args():
 if __name__ == '__main__':
     arg = args()
     dl = DataLoad(arg.train_path)
-    train_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
-    train_df.to_csv(arg.flattendf_path, index=False)
-    print('data has been loaded and saved at ' + arg.flattendf_path)
+    # train_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
+    # train_df.to_csv(arg.flattendf_path, index=False)
+    # print('data has been loaded and saved at ' + arg.flattendf_path)
+
+    train_df = pd.read_csv(arg.flattendf_path)
+    print('flattened data has been loaded')
     train, test, test_res = dl.data_split(train_df)
     print('data has been splited')
 
