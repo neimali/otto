@@ -24,7 +24,7 @@ class WordToVec:
         ts = -1
         # new session and ts_interval>interval
         for i in self.df.index:
-            if self.df.loc[i, 'session'] == session and self.df.loc[i, 'ts']-ts < interval_ts:
+            if self.df.loc[i, 'session'] == session and self.df.loc[i, 'ts'] - ts < interval_ts:
                 ts = self.df.loc[i, 'ts']
                 self.df.loc[i, 'sentence'] = sentence
             elif self.df.loc[i, 'session'] != session:
@@ -54,3 +54,10 @@ class WordToVec:
 
         return vectors
 
+if __name__ == '__main__':
+    dl = DataLoad('D:\OTTO\Data\\train.jsonl')
+    dl.sample_data(10)
+    df = dl.to_dataframe(dl.sample)
+    wv = WordToVec(df)
+    s = wv.time_session(2)
+    print(s)

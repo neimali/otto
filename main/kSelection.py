@@ -13,6 +13,7 @@ def args():
     parse.add_argument('--flattendf_path', type=str, default='~/otto/data/flattenTrain.csv')
     parse.add_argument('--k_value', type=int, nargs='+', default=[1e4, 1e5, 1e6]) #--k_value 1e4 1e5 1e6
     parse.add_argument('--ts_duration', type=int, default=2)
+    parse.add_argument('--sentences_path', type=str, default='~/otto/data/sentences.csv' )
     arg = parse.parse_args()
     return arg
 
@@ -30,7 +31,9 @@ if __name__ == '__main__':
 
     wv = WordToVec(train)
     sentences = wv.time_session(arg.ts_duration)
-    print('articles sentences has been created')
+    sentences.to_csv(arg.sentences_path, index=False)
+    print('articles sentences has been created and stored in' + arg.sentences_path)
+    sentences = pd.read_csv(arg.sentences_path)
     vectors = wv.train(sentences)
     print('vectors obtained')
     c = Clustering('km', vectors)
