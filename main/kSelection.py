@@ -13,7 +13,10 @@ def args():
     parse.add_argument('--flattendf_path', type=str, default='~/otto/data/flattenTrain.csv')
     parse.add_argument('--k_value', type=int, nargs='+', default=[1e4, 1e5, 1e6]) #--k_value 1e4 1e5 1e6
     parse.add_argument('--ts_duration', type=int, default=2)
-    parse.add_argument('--sentences_path', type=str, default='~/otto/data/sentences.csv' )
+    parse.add_argument('--sentences_path', type=str, default='~/otto/data/sentences.csv')
+    parse.add_argument('--traindf', type=str, default='~/otto/data/train.csv')
+    parse.add_argument('--testdf', type=str, default='~/otto/data/test.csv')
+    parse.add_argument('--testresdf', type=str, default='~/otto/data/testres.csv')
     arg = parse.parse_args()
     return arg
 
@@ -26,11 +29,17 @@ if __name__ == '__main__':
 
     train_df = pd.read_csv(arg.flattendf_path)
     print('flattened data has been loaded')
-    train, test, test_res = dl.data_split(train_df)
+    train, test, test_res = dl.data_split(train_df, train_size=0.9)
     print('data has been splited')
-
+    train.to_csv(arg.traindf, index=False)
+    train.to_csv(arg.testdf, index=False)
+    train.to_csv(arg.testresdf, index=False)
+    print('splited data has been stored')
+    train = pd.read_csv(arg.traindf)
+    print('train set has been loaded')
     wv = WordToVec(train)
     sentences = wv.time_session(arg.ts_duration)
+    print('sentences generation is done')
     sentences.to_csv(arg.sentences_path, index=False)
     print('articles sentences has been created and stored in' + arg.sentences_path)
     sentences = pd.read_csv(arg.sentences_path)
