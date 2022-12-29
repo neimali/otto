@@ -3,6 +3,7 @@ import pandas as pd
 from dataLoad import DataLoad
 import polars as pl
 from annoy import AnnoyIndex
+import json
 
 class WordToVec:
     def __init__(self, data):
@@ -22,22 +23,27 @@ class WordToVec:
         session = -1
         sentence = 0
         ts = -1
+        sentences = {}
         # new session and ts_interval>interval
         for i in self.df.index:
             if self.df.loc[i, 'session'] == session and self.df.loc[i, 'ts'] - ts < interval_ts:
                 ts = self.df.loc[i, 'ts']
-                self.df.loc[i, 'sentence'] = sentence
+                # self.df.loc[i, 'sentence'] = sentence
+                sentences[sentence].append(int(self.df.loc[i, 'aid']))
             elif self.df.loc[i, 'session'] != session:
                 sentence += 1
                 session = self.df.loc[i, 'session']
                 ts = self.df.loc[i, 'ts']
-                self.df.loc[i, 'sentence'] = sentence
+                # self.df.loc[i, 'sentence'] = sentence
+                sentences[sentence] = [int(self.df.loc[i, 'aid'])]
             else:
                 sentence += 1
                 ts = self.df.loc[i, 'ts']
-                self.df.loc[i, 'sentence'] = sentence
+                # self.df.loc[i, 'sentence'] = sentence
+                sentences[sentence] = [int(self.df.loc[i, 'aid'])]
 
-        sentences = self.df.groupby('sentence')['aid'].apply(list)
+        # sentences = self.df.groupby('sentence')['aid'].apply(list)
+        # sentences = pd.Series(sentences)
         return sentences
 
     def train(self, sentences):
@@ -60,4 +66,7 @@ if __name__ == '__main__':
     df = dl.to_dataframe(dl.sample)
     wv = WordToVec(df)
     s = wv.time_session(2)
+    s_str = json.dumps(s)
+    with open('D:\OTTO\Data\\tmpjs.jsonl', 'w') as json_file:
+        json_file.write(s_str)
     print(s)
