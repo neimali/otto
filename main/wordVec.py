@@ -4,6 +4,7 @@ from dataLoad import DataLoad
 import polars as pl
 from annoy import AnnoyIndex
 import json
+from tqdm import tqdm
 
 class WordToVec:
     def __init__(self, data):
@@ -25,7 +26,7 @@ class WordToVec:
         ts = -1
         sentences = {}
         # new session and ts_interval>interval
-        for i in self.df.index:
+        for i in tqdm(self.df.index):
             if self.df.loc[i, 'session'] == session and self.df.loc[i, 'ts'] - ts < interval_ts:
                 ts = self.df.loc[i, 'ts']
                 # self.df.loc[i, 'sentence'] = sentence

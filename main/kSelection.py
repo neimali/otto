@@ -32,12 +32,16 @@ if __name__ == '__main__':
     print('flattened data has been loaded')
     train, test, test_res = dl.data_split(train_df, train_size=0.9)
     print('data has been splited')
-    train.to_csv(arg.traindf, index=False)
-    train.to_csv(arg.testdf, index=False)
-    train.to_csv(arg.testresdf, index=False)
-    print('splited data has been stored')
-    train = pd.read_csv(arg.traindf)
-    print('train set has been loaded')
+    del train_df
+    del test
+    del test_res
+    del dl
+    #train.to_csv(arg.traindf, index=False)
+    #train.to_csv(arg.testdf, index=False)
+    #train.to_csv(arg.testresdf, index=False)
+    #print('splited data has been stored')
+    #train = pd.read_csv(arg.traindf)
+    #print('train set has been loaded')
     wv = WordToVec(train)
     sentences = wv.time_session(arg.ts_duration)
     print('sentences generation is done')
@@ -46,11 +50,11 @@ if __name__ == '__main__':
         json_file.write(s_str)
     # sentences.to_csv(arg.sentences_path, index=False)
     print('articles sentences has been created and stored in' + arg.sentences_path)
-    sentences = pd.read_csv(arg.sentences_path)
-    vectors = wv.train(sentences)
-    print('vectors obtained')
-    c = Clustering('km', vectors)
+    #sentences = pd.read_csv(arg.sentences_path)
+    #vectors = wv.train(sentences)
+    #print('vectors obtained')
+    #c = Clustering('km', vectors)
 
-    k_values = arg.k_value
-    res = c.fine_tune(k_values, train, test, test_res)
+    #k_values = arg.k_value
+    #res = c.fine_tune(k_values, train, test, test_res)
     print(res)
