@@ -3,6 +3,7 @@ from sklearn.metrics import recall_score
 from wordVec import WordToVec
 from dataLoad import DataLoad
 import pandas as pd
+from tqdm import tqdm
 
 class Clustering:
     def __init__(self, model, art_vectors):
@@ -39,7 +40,7 @@ class Clustering:
         scores = []
         clusters_df = pd.DataFrame(clusters).set_index('aid')
         test_cluster = test.join(clusters_df, on='aid', how='left')
-        for s in test_cluster.session.unique():
+        for s in tqdm(test_cluster.session.unique()):
             session_label = test_cluster.loc[test_cluster.session == s, 'label'].value_counts().index[0]
             candidates = rank[session_label]
             pred[s] = candidates[:20-len(test.loc[test.session == s])]

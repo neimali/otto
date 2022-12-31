@@ -1,6 +1,5 @@
 import json
 
-data={'a':1,'b':2}
-data=json.dumps(data)
-with open('/home/qiaodawang19/otto/data/tmp.jsonl', 'w') as json_file:
-    json_file.write(data)
+with open('/home/qiaodawang19/otto/data/sentences.jsonl', 'r') as json_file:
+    data = json.load(json_file)
+print(data)
