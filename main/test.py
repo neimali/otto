@@ -1,5 +1,4 @@
-import json
+import pandas as pd
 
-with open('/home/qiaodawang19/otto/data/sentences.jsonl', 'r') as json_file:
-    data = json.load(json_file)
-print(data)
+m=pd.read_parquet('D:\OTTO\Data\\top_15_carts_orders_v5_0.pqt')
+print(m.head())

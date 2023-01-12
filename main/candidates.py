@@ -11,10 +11,11 @@ def args():
     parse = argparse.ArgumentParser(description=description)
     parse.add_argument('--chunksize', type=int, default=1e4)
     parse.add_argument('--train_path', type=str, default='~/otto/data/train.jsonl')
+    parse.add_argument('--test_path', type=str, default='~/otto/data/test.jsonl')
     parse.add_argument('--flattendf_path', type=str, default='~/otto/data/flattenTrain.csv')
-    parse.add_argument('--k_value', type=int, nargs='+', default=[10000, 100000, 1000000])
     parse.add_argument('--ts_duration', type=int, default=2)
     parse.add_argument('--sentences_path', type=str, default='~/otto/data/sentences.jsonl')
+    parse.add_argument('--cluster_candidates_path', type=str, default='~/otto/data/cluster_candidates.jsonl')
     parse.add_argument('--traindf', type=str, default='~/otto/data/train.csv')
     parse.add_argument('--testdf', type=str, default='~/otto/data/test.csv')
     parse.add_argument('--testresdf', type=str, default='~/otto/data/testres.csv')
@@ -23,36 +24,26 @@ def args():
 
 if __name__ == '__main__':
     arg = args()
-    dl = DataLoad(arg.train_path)
+    # dl = DataLoad(arg.train_path)
     # train_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
     # train_df.to_csv(arg.flattendf_path, index=False)
     # print('data has been loaded and saved at ' + arg.flattendf_path)
 
     train_df = pd.read_csv(arg.flattendf_path)
-    test_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
     print('flattened data has been loaded')
-    train, test, test_res = dl.data_split(train_df, train_size=0.9)
-    print('data has been splited')
-    del train_df
-    del train
-    #del test
-    #del test_res
-    #del dl
-    #train.to_csv(arg.traindf, index=False)
-    #train.to_csv(arg.testdf, index=False)
-    #train.to_csv(arg.testresdf, index=False)
-    #print('splited data has been stored')
-    #train = pd.read_csv(arg.traindf)
-    #print('train set has been loaded')
-    train = None
-    wv = WordToVec(train)
-    #sentences = wv.time_session(arg.ts_duration)
-    #print('sentences generation is done')
-    #s_str = json.dumps(sentences)
-    #with open(arg.sentences_path, 'w') as json_file:
-        #json_file.write(s_str)
-    # sentences.to_csv(arg.sentences_path, index=False)
-    #print('articles sentences has been created and stored in' + arg.sentences_path)
+    dl = DataLoad(arg.test_path)
+    test_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
+    print('test_df obtained')
+
+
+    wv = WordToVec(train_df)
+    sentences = wv.time_session(arg.ts_duration)
+    print('sentences generation is done')
+    s_str = json.dumps(sentences)
+    with open(arg.sentences_path, 'w') as json_file:
+        json_file.write(s_str)
+    sentences.to_csv(arg.sentences_path, index=False)
+    print('articles sentences has been created and stored in' + arg.sentences_path)
     print('Loading sentneces...')
     with open(arg.sentences_path, 'r') as json_file:
         sentences = json.load(json_file)
@@ -60,8 +51,14 @@ if __name__ == '__main__':
     sentences = list(sentences.values())
     vectors = wv.train(sentences)
     print('word2vec training complete')
-    c = Clustering('km', vectors)
 
-    k_values = arg.k_value
-    res = c.fine_tune(k_values, train, test, test_res)
-    print(res)
+    c = Clustering('km', vectors)
+    k_values = np.floor(1855603/50)
+    clusters = c.kmCluster(k_values)
+    rank = c.articles_rank_by_label(train_df, clusters)
+    candidates = c.get_candidates(test_df,clusters,rank)
+    s_str = json.dumps(candidates)
+    with open(arg.cluster_candidates_path, 'w') as json_file:
+        json_file.write(s_str)
+    print('candidates from clustering saved')
+

@@ -1,4 +1,4 @@
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.metrics import recall_score
 from wordVec import WordToVec
 from dataLoad import DataLoad
@@ -13,7 +13,8 @@ class Clustering:
         self.article = list(self.art_vec_dict.keys())
 
     def kmCluster(self, k):
-        km = KMeans(n_clusters=k, random_state=24)
+        # km = KMeans(n_clusters=k, random_state=24)
+        km = MiniBatchKMeans(n_clusters=k, batch_size=4096,random_state=24)
         print('clustering on k=' + str(k) + ' is started')
         km.fit(self.vectors)
         print('clustering finished')
@@ -33,6 +34,16 @@ class Clustering:
         for l in tqdm(article_rank.groupby('label')):
             res[l[0]] = l[1].aid.tolist()
         return res
+
+    def get_candidates(self, test, clusters, rank):
+        print('start generating candidates from clustering')
+        can = {}
+        test_cluster = pd.merge(test, clusters, how='left', on='aid')
+        for s in tqdm(test_cluster.groupby('session')):
+            session_label = s[1].label.mode().iloc[0]
+            candidates = rank[session_label]
+            can[s[0]] = candidates
+        return can
 
     def validation(self, test, test_res, clusters, rank):
         # get label for each session(majority vote)
@@ -90,7 +101,10 @@ if __name__ == '__main__':
     c = Clustering('km', vector)
     cres = c.kmCluster(2)
     rank = c.articles_rank_by_label(df, cres)
-    score = c.validation(test, test_res, cres, rank)
+    print(rank)
+    candidates = c.get_candidates(test, cres, rank)
+    print(candidates)
+    # score = c.validation(test, test_res, cres, rank)
     # k = c.fine_tune([2,3], df, test, test_res)
 
 
