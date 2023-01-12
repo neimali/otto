@@ -12,10 +12,11 @@ def args():
     parse.add_argument('--chunksize', type=int, default=1e4)
     parse.add_argument('--train_path', type=str, default='~/otto/data/train.jsonl')
     parse.add_argument('--test_path', type=str, default='~/otto/data/test.jsonl')
-    parse.add_argument('--flattendf_path', type=str, default='~/otto/data/flattenTrain.csv')
+    parse.add_argument('--flattentrain_path', type=str, default='~/otto/data/flattenTrain.csv')
+    parse.add_argument('--flattentest_path', type=str, default='~/otto/data/flattenTest.csv')
     parse.add_argument('--ts_duration', type=int, default=2)
-    parse.add_argument('--sentences_path', type=str, default='~/otto/data/sentences.jsonl')
-    parse.add_argument('--cluster_candidates_path', type=str, default='~/otto/data/cluster_candidates.jsonl')
+    parse.add_argument('--sentences_path', type=str, default='/home/qiaodawang19/otto/data/sentences.jsonl')
+    parse.add_argument('--cluster_candidates_path', type=str, default='/home/qiaodawang19/otto/data/cluster_candidates.jsonl')
     parse.add_argument('--traindf', type=str, default='~/otto/data/train.csv')
     parse.add_argument('--testdf', type=str, default='~/otto/data/test.csv')
     parse.add_argument('--testresdf', type=str, default='~/otto/data/testres.csv')
@@ -29,10 +30,14 @@ if __name__ == '__main__':
     # train_df.to_csv(arg.flattendf_path, index=False)
     # print('data has been loaded and saved at ' + arg.flattendf_path)
 
-    train_df = pd.read_csv(arg.flattendf_path)
-    print('flattened data has been loaded')
+    train_df = pd.read_csv(arg.flattentrain_path)
+    print('flattened training data has been loaded')
     dl = DataLoad(arg.test_path)
     test_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
+    test_df.to_csv(arg.flattendf_path, index=False)
+    print('data has been loaded and saved at ' + arg.flattentest_path)
+
+    test_df = pd.read_csv(arg.flattendf_path)
     print('test_df obtained')
 
 
