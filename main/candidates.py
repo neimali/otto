@@ -55,7 +55,7 @@ if __name__ == '__main__':
     del sentences
 
     c = Clustering('km', vectors)
-    k_values = np.floor(1855603/50)
+    k_values = int(np.floor(1855603/50))
     clusters = c.kmCluster(k_values)
     rank = c.articles_rank_by_label(train_df, clusters)
 

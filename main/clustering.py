@@ -3,6 +3,7 @@ from sklearn.metrics import recall_score
 from wordVec import WordToVec
 from dataLoad import DataLoad
 import pandas as pd
+import numpy as np
 from tqdm import tqdm
 
 class Clustering:
@@ -36,13 +37,27 @@ class Clustering:
         return res
 
     def get_candidates(self, test, clusters, rank):
-        print('start generating candidates from clustering')
+        # print('start generating candidates from clustering')
+        # can = {}
+        # test_cluster = pd.merge(test, clusters, how='left', on='aid')
+        # for s in tqdm(test_cluster.groupby('session')):
+        #     session_label = s[1].label.mode().iloc[0]
+        #     candidates = rank[session_label]
+        #     can[s[0]] = candidates
+        # return can
+
+        # get distribution(percentage) of label
         can = {}
         test_cluster = pd.merge(test, clusters, how='left', on='aid')
         for s in tqdm(test_cluster.groupby('session')):
-            session_label = s[1].label.mode().iloc[0]
-            candidates = rank[session_label]
-            can[s[0]] = candidates
+            candidates_s = []
+            count = s[1].label.value_counts()
+            ratio = count.div(count.sum())
+            for i in ratio.index:
+                num = int(np.ceil(ratio[i]*50))
+                candidates_s.extend(rank[i][:num])
+            can[s[0]] = candidates_s
+            
         return can
 
     def validation(self, test, test_res, clusters, rank):
@@ -101,7 +116,6 @@ if __name__ == '__main__':
     c = Clustering('km', vector)
     cres = c.kmCluster(2)
     rank = c.articles_rank_by_label(df, cres)
-    print(rank)
     candidates = c.get_candidates(test, cres, rank)
     print(candidates)
     # score = c.validation(test, test_res, cres, rank)
