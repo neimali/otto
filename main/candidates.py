@@ -32,13 +32,13 @@ if __name__ == '__main__':
 
     train_df = pd.read_csv(arg.flattentrain_path)
     print('flattened training data has been loaded')
-    dl = DataLoad(arg.test_path)
-    test_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
-    test_df.to_csv(arg.flattendf_path, index=False)
-    print('data has been loaded and saved at ' + arg.flattentest_path)
+    #dl = DataLoad(arg.test_path)
+    #test_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
+    #test_df.to_csv(arg.flattentest_path, index=False)
+    #print('data has been loaded and saved at ' + arg.flattentest_path)
 
-    test_df = pd.read_csv(arg.flattendf_path)
-    print('test_df obtained')
+    test_df = pd.read_csv(arg.flattentest_path)
+    print('flattened testing data has been loaded')
 
 
     wv = WordToVec(train_df)
@@ -47,7 +47,6 @@ if __name__ == '__main__':
     s_str = json.dumps(sentences)
     with open(arg.sentences_path, 'w') as json_file:
         json_file.write(s_str)
-    sentences.to_csv(arg.sentences_path, index=False)
     print('articles sentences has been created and stored in' + arg.sentences_path)
     print('Loading sentneces...')
     with open(arg.sentences_path, 'r') as json_file:
