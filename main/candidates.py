@@ -37,17 +37,13 @@ if __name__ == '__main__':
     #test_df.to_csv(arg.flattentest_path, index=False)
     #print('data has been loaded and saved at ' + arg.flattentest_path)
 
-    test_df = pd.read_csv(arg.flattentest_path)
-    print('flattened testing data has been loaded')
-
-
     wv = WordToVec(train_df)
-    sentences = wv.time_session(arg.ts_duration)
-    print('sentences generation is done')
-    s_str = json.dumps(sentences)
-    with open(arg.sentences_path, 'w') as json_file:
-        json_file.write(s_str)
-    print('articles sentences has been created and stored in' + arg.sentences_path)
+    # sentences = wv.time_session(arg.ts_duration)
+    # print('sentences generation is done')
+    # s_str = json.dumps(sentences)
+    # with open(arg.sentences_path, 'w') as json_file:
+    #     json_file.write(s_str)
+    # print('articles sentences has been created and stored in' + arg.sentences_path)
     print('Loading sentneces...')
     with open(arg.sentences_path, 'r') as json_file:
         sentences = json.load(json_file)
@@ -56,10 +52,18 @@ if __name__ == '__main__':
     vectors = wv.train(sentences)
     print('word2vec training complete')
 
+    del sentences
+
     c = Clustering('km', vectors)
     k_values = np.floor(1855603/50)
     clusters = c.kmCluster(k_values)
     rank = c.articles_rank_by_label(train_df, clusters)
+
+    del train_df
+
+    test_df = pd.read_csv(arg.flattentest_path)
+    print('flattened testing data has been loaded')
+
     candidates = c.get_candidates(test_df,clusters,rank)
     s_str = json.dumps(candidates)
     with open(arg.cluster_candidates_path, 'w') as json_file:
