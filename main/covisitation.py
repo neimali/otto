@@ -3,6 +3,7 @@ import numpy as np
 import itertools
 from collections import Counter
 import argparse
+import json
 
 
 def args():
@@ -19,6 +20,7 @@ def args():
     parse.add_argument('--traindf', type=str, default='~/otto/data/train.csv')
     parse.add_argument('--testdf', type=str, default='~/otto/data/test.csv')
     parse.add_argument('--testresdf', type=str, default='~/otto/data/testres.csv')
+    parse.add_argument('--co_vi_candidates_path', type=str, default='/home/qiaodawang19/otto/data/co_vi_candidates.jsonl')
     arg = parse.parse_args()
     return arg
 
@@ -61,11 +63,11 @@ def obtain_candidates(df):
 if __name__ == '__main__':
     VER = 5
     DISK_PIECES = 4
-    type_weight_multipliers = {'click': 1, 'cart': 6, 'order': 3}
+    type_weight_multipliers = {'clicks': 1, 'carts': 6, 'orders': 3}
 
     arg = args()
     # LOAD THREE CO-VISITATION MATRICES
-    matrices_dir = 'D:\OTTO\Data/co_vistation/'
+    matrices_dir = '/home/qiaodawang19/otto/data/co_visitation/'
     top_20_clicks = pqt_to_dict(pd.read_parquet(matrices_dir + f'top_20_clicks_v{VER}_0.pqt'))
     for k in range(1, DISK_PIECES):
         top_20_clicks.update(
@@ -84,4 +86,8 @@ if __name__ == '__main__':
     candidates = test_df.sort_values(["session", "ts"]).groupby(["session"]).apply(
         lambda x: obtain_candidates(x)
     )
-    print(candidates)
+    candidates = candidates.to_dict()
+    s_str = json.dumps(candidates)
+    with open(arg.co_vi_candidates_path, 'w') as json_file:
+         json_file.write(s_str)
+    print('co-visitation matrix canidates has been created and stored in' + arg.co_vi_candidates_path)
