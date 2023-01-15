@@ -11,7 +11,9 @@ class Clustering:
         self.model_name = model
         self.art_vec_dict = art_vectors
         self.vectors = list(self.art_vec_dict.values())
+        print(self.vectors)
         self.article = list(self.art_vec_dict.keys())
+        print(self.article)
 
     def kmCluster(self, k):
         # km = KMeans(n_clusters=k, random_state=24)
@@ -28,7 +30,9 @@ class Clustering:
         print('start calculating rank by label')
         article_rank = data.aid.value_counts()
         article_rank = pd.DataFrame({'aid': article_rank.index, 'counts': article_rank.values})
+        print(article_rank)
         article_rank = pd.merge(article_rank, cluster_res)
+        print(article_rank)
         # for l in cluster_res['label'].unique():
         #     articles = cluster_res.loc[cluster_res.label == l, 'aid'].unique()
         #     res[l] = article_rank.loc[article_rank.index.isin(articles)].index.tolist()
@@ -57,7 +61,7 @@ class Clustering:
                 num = int(np.ceil(ratio[i]*50))
                 candidates_s.extend(rank[i][:num])
             can[s[0]] = candidates_s
-            
+
         return can
 
     def validation(self, test, test_res, clusters, rank):
