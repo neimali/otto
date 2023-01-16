@@ -33,8 +33,8 @@ if __name__ == '__main__':
     # train_df.to_csv(arg.flattendf_path, index=False)
     # print('data has been loaded and saved at ' + arg.flattendf_path)
 
-    train_df = pd.read_csv(arg.flattentrain_path)
-    print('flattened training data has been loaded')
+    #train_df = pd.read_csv(arg.flattentrain_path)
+    #print('flattened training data has been loaded')
     #dl = DataLoad(arg.test_path)
     #test_df = dl.get_data_with_chunk(chunksize=arg.chunksize)
     #test_df.to_csv(arg.flattentest_path, index=False)
@@ -73,26 +73,27 @@ if __name__ == '__main__':
     #     json_file.write(s_str)
     # print('candidates from clustering saved')
 
-
+    train_df = pd.read_csv(arg.flattentrain_path, nrows=100)
+    print('flattened training 100rows data has been loaded')
     with open(arg.co_vi_candidates_path, 'r') as json_file:
         co_vi_candidates = json.load(json_file)
-
+    print('co_vi_candidates loaded')
     with open(arg.cluster_candidates_path, 'r') as json_file:
         cluster_candidates = json.load(json_file)
-
+    print('cluster_candidates loaded')
     most_popular = train_df.aid.value_counts()
-
+    print('start generating final candidates')
     candidates = {}
-    for k,v in tqdm(cluster_candidates):
+    for k,v in tqdm(cluster_candidates.items()):
         cans = []
         cans.extend(v)
         cans.extend(co_vi_candidates[k])
-        if len(cans) >= 50:
-            cans = cans[:50]
+        if len(cans) >= 100:
+            cans = cans[:100]
         else :
-            cans.extend(list(most_popular.index[:50-len(cans)]))
-
+            cans.extend(list(most_popular.index[:100-len(cans)]))
+        candidates[k] = cans
     s_str = json.dumps(candidates)
     with open(arg.final_candidates_path, 'w') as json_file:
         json_file.write(s_str)
-
+    print('final candidates is saved at ' + arg.final_candidates_path)
