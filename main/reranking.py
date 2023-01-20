@@ -29,12 +29,13 @@ class Reranking:
         f = Feature(data)
         f.target
         f.user_action_count
+        f.user_action_ratio
 
         return f.data
 
     def train(self, candidates, features, model_path):
         skf = GroupKFold(n_splits=self.k_fold)
-        for fold,(train_idx, valid_idx) in enumerate(skf.split(candidates, candidates['click'], groups=candidates['user'] )):
+        for fold,(train_idx, valid_idx) in enumerate(skf.split(candidates, candidates['click'], groups=candidates['session'] )):
             X_train = candidates.loc[train_idx, features]
             y_train = candidates.loc[train_idx, 'click']
             X_valid = candidates.loc[valid_idx, features]
@@ -67,7 +68,7 @@ if __name__ == '__main__':
         return arg
     arg = args()
     r = Reranking('XGBoost', canidates_path=arg.can_path, k_fold=5)
-    train_df = r.flatten_candidates()
+    train_df = pd.read_csv(arg.train_path)
     train_df = r.get_feature(train_df)
     features = ['cl_cnt', 'ca_cnt', 'or_cnt', 'cl_ca_ratio', 'cl_or_ratio', 'ca_or_ratio']
     r.train(train_df, features=features)
