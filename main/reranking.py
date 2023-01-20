@@ -30,7 +30,7 @@ class Reranking:
         f.target
         f.user_action_count
         f.user_action_ratio
-
+        print(f.data.columns)
         return f.data
 
     def train(self, candidates, features, model_path):
@@ -62,13 +62,18 @@ if __name__ == '__main__':
     def args():
         description = 'can_path is the path of 100 candidates, k_fold is the k for k_fold validation'
         parse = argparse.ArgumentParser(description=description)
-        parse.add_argument('--can_path', type=str, default='')
-        parse.add_argument('--model_path', type=str, default='click_model.xgb')
+        parse.add_argument('--can_path', type=str, default='/home/qiaodawang19/otto/data/final_candidates.jsonl')
+        parse.add_argument('--model_path', type=str, default='/home/qiaodawang19/otto/model/t_model.xgb')
+        parse.add_argument('--train_path', type=str, default='/home/qiaodawang19/otto/data/flattenTrain.csv')
         arg = parse.parse_args()
         return arg
     arg = args()
     r = Reranking('XGBoost', canidates_path=arg.can_path, k_fold=5)
+    print('start loading training data')
     train_df = pd.read_csv(arg.train_path)
+    print('start adding features')
     train_df = r.get_feature(train_df)
     features = ['cl_cnt', 'ca_cnt', 'or_cnt', 'cl_ca_ratio', 'cl_or_ratio', 'ca_or_ratio']
-    r.train(train_df, features=features)
+    print('start training')
+    r.train(train_df, features=features, model_path=arg.model_path)
+    print('training compelet model saved at ' + arg.model_path)

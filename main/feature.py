@@ -11,7 +11,7 @@ class Feature:
         self.data['click'] = self.data['type'].apply(lambda x: 1 if x == 'clicks' else 0)
         self.data['cart'] = self.data['type'].apply(lambda x: 1 if x == 'carts' else 0)
         self.data['order'] = self.data['type'].apply(lambda x: 1 if x == 'orders' else 0)
-
+        print('target generated')
 
     def user_action_count(self):
         self.data['cl_cnt'] = self.data[self.data['type'] == 'clicks'].groupby('session')['type'].transform('count')
