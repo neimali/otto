@@ -22,9 +22,9 @@ class Feature:
         print('type and ts droped')
 
     def user_action_count(self):
-        self.data['cl_cnt'] = self.data[self.data['type'] == 'clicks'].groupby('session')['type'].transform('count')
-        self.data['ca_cnt'] = self.data[self.data['type'] == 'carts'].groupby('session')['type'].transform('count')
-        self.data['or_cnt'] = self.data[self.data['type'] == 'orders'].groupby('session')['type'].transform('count')
+        self.data['cl_cnt'] = self.data[self.data['type'] == 'clicks'].groupby('session')['type'].transform('count').astype('Int8')
+        self.data['ca_cnt'] = self.data[self.data['type'] == 'carts'].groupby('session')['type'].transform('count').astype('Int8')
+        self.data['or_cnt'] = self.data[self.data['type'] == 'orders'].groupby('session')['type'].transform('count').astype('Int8')
 
         self.data['cl_cnt'] = self.data.groupby('session')['cl_cnt'].transform(lambda x: x.fillna(x.min()))
         self.data['cl_cnt'] = self.data.groupby('session')['cl_cnt'].transform(lambda x: x.fillna(0))
@@ -33,23 +33,17 @@ class Feature:
         self.data['or_cnt'] = self.data.groupby('session')['or_cnt'].transform(lambda x: x.fillna(x.min()))
         self.data['or_cnt'] = self.data.groupby('session')['or_cnt'].transform(lambda x: x.fillna(0))
 
-        self.data['cl_cnt'] = pd.to_numeric(self.data['cl_cnt'], downcast='unsigned')
-        self.data['ca_cnt'] = pd.to_numeric(self.data['ca_cnt'], downcast='unsigned')
-        self.data['or_cnt'] = pd.to_numeric(self.data['or_cnt'], downcast='unsigned')
         print('user_action_count feature complete')
 
     def user_action_ratio(self):
-        self.data['cl_ca_ratio'] = self.data['ca_cnt'] / self.data['cl_cnt']
-        self.data['cl_or_ratio'] = self.data['or_cnt'] / self.data['cl_cnt']
-        self.data['ca_or_ratio'] = self.data['or_cnt'] / self.data['ca_cnt']
+        self.data['cl_ca_ratio'] = (self.data['ca_cnt'] / self.data['cl_cnt']).astype('float32')
+        self.data['cl_or_ratio'] = (self.data['or_cnt'] / self.data['cl_cnt']).astype('float32')
+        self.data['ca_or_ratio'] = (self.data['or_cnt'] / self.data['ca_cnt']).astype('float32')
 
         self.data['cl_ca_ratio'] = self.data['cl_ca_ratio'].fillna(0)
         self.data['cl_or_ratio'] = self.data['cl_or_ratio'].fillna(0)
         self.data['ca_or_ratio'] = self.data['ca_or_ratio'].fillna(0)
 
-        self.data['cl_ca_ratio'] = pd.to_numeric(self.data['cl_ca_ratio'], downcast='float')
-        self.data['cl_or_ratio'] = pd.to_numeric(self.data['cl_or_ratio'], downcast='float')
-        self.data['ca_or_ratio'] = pd.to_numeric(self.data['ca_or_ratio'], downcast='float')
         print('user_action_ratio feature complete')
 
     def user_time_features(self):
