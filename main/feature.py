@@ -22,9 +22,9 @@ class Feature:
         print('type and ts droped')
 
     def user_action_count(self):
-        self.data['cl_cnt'] = self.data[self.data['type'] == 'clicks'].groupby('session')['type'].transform('count').astype('Int8')
-        self.data['ca_cnt'] = self.data[self.data['type'] == 'carts'].groupby('session')['type'].transform('count').astype('Int8')
-        self.data['or_cnt'] = self.data[self.data['type'] == 'orders'].groupby('session')['type'].transform('count').astype('Int8')
+        self.data['cl_cnt'] = self.data[self.data['type'] == 0].groupby('session')['type'].transform('count').astype('Int8')
+        self.data['ca_cnt'] = self.data[self.data['type'] == 1].groupby('session')['type'].transform('count').astype('Int8')
+        self.data['or_cnt'] = self.data[self.data['type'] == 2].groupby('session')['type'].transform('count').astype('Int8')
 
         self.data['cl_cnt'] = self.data.groupby('session')['cl_cnt'].transform(lambda x: x.fillna(x.min()))
         self.data['cl_cnt'] = self.data.groupby('session')['cl_cnt'].transform(lambda x: x.fillna(0))

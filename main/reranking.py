@@ -71,7 +71,8 @@ if __name__ == '__main__':
     arg = args()
     r = Reranking('XGBoost', canidates_path=arg.can_path, k_fold=5)
     print('start loading training data')
-    train_df = pd.read_csv(arg.train_path)
+    # train_df = pd.read_csv(arg.train_path)
+    train_df = pd.read_parquet('/home/qiaodawang19/otto/data/memoryopt/train.parquet')
     print('start adding features')
     train_df = r.get_feature(train_df)
     features = ['cl_cnt', 'ca_cnt', 'or_cnt', 'cl_ca_ratio', 'cl_or_ratio', 'ca_or_ratio']
