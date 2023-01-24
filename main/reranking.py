@@ -27,7 +27,7 @@ class Reranking:
 
     def get_feature(self, data):
         f = Feature(data)
-        f.target()
+        # f.target()
         f.drop_type()
         f.user_action_count()
         f.user_action_ratio()
